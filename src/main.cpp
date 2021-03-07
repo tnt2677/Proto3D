@@ -4,6 +4,47 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+
+struct ShaderProgramSource
+{
+  std::string vertex_source;
+  std::string fragment_source;
+};
+
+static ShaderProgramSource parse_shader(const std::string &file_path)
+{
+  std::ifstream stream(file_path);
+
+  enum class ShaderType
+  {
+    kNone = -1,
+    kVertex = 0,
+    kFragment = 1
+  };
+
+  std::string line;
+  std::stringstream ss[2];
+  ShaderType type = ShaderType::kNone;
+
+  while (getline(stream, line))
+  {
+    if (line.find("#shader") != std::string::npos)
+    {
+      if (line.find("vertex") != std::string::npos)
+        type = ShaderType::kVertex;
+      else if (line.find("fragment") != std::string::npos)
+        type = ShaderType::kFragment;
+    }
+    else
+    {
+      ss[(int)type] << line << '\n';
+    }
+  }
+
+  return {ss[0].str(), ss[1].str()};
+}
 
 static unsigned int compile_shader(unsigned int type, const std::string &source)
 {
@@ -131,36 +172,20 @@ int main() {
 
   unsigned int buffer;
   glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+  glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
 
   unsigned int vertex_array;
   glGenVertexArrays(1, &vertex_array);
-
-  glBindBuffer(GL_ARRAY_BUFFER, buffer);
-  glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+  glBindVertexArray(vertex_array);
 
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0 /*index*/, 2 /*size*/, GL_FLOAT, GL_FALSE /*normalised*/, sizeof(float) * 2 /*stride*/, (void *)0 /*attribute pointer*/);
 
-  std::string vertex_shader =
-      "#version 330 core\n"
-      "layout (location = 0) in vec2 aPos;\n"
-      "void main()\n"
-      "{\n"
-      "   gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);\n"
-      "}\n";
-
-  std::string fragment_shader =
-      "#version 330 core\n"
-      "\n"
-      "out vec4 color;\n"
-      "void main()\n"
-      "{\n"
-      " color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-      "}\n";
-
-  unsigned int shader_program = create_shaders(vertex_shader, fragment_shader);
+  ShaderProgramSource source = parse_shader("src/res/shaders/basic.shader");
+  unsigned int shader_program = create_shaders(source.vertex_source, source.fragment_source);
+  
   glUseProgram(shader_program);
-  glBindVertexArray(vertex_array);
 
   while (!glfwWindowShouldClose(window))
   {
@@ -172,6 +197,8 @@ int main() {
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+
+  glDeleteProgram(shader_program);
 
   glfwDestroyWindow(window);
   glfwTerminate();
