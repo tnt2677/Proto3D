@@ -14,30 +14,29 @@ pacman -S glfw-x11 glm cmake
 brew install glfw glm cmake
 ```
 
-[GLAD][] is used for extension loading but it’s already part of the sources; configured for OpenGL 3.3 Core profile with the `GL_KHR_debug` extension.  Needn’t be installed separately.
-
 Clone this repo and proceed after installing dependencies.
+
+Some dependencies are already in the source tree under `//third-party`; needn’t be installed separately:
+
+* [GLAD][] for OpenGL extension loading; configured for OpenGL 3.3 Core profile with the `GL_KHR_debug` extension
+* [stb][] (specifically `stb_image.h`) for image loading
 
 # Build
 
 CMake has many generators.  Use whatever is comfortable for you, I’ve shown `Unix Makefiles` for its simplicity and ubiquity.  Check `man cmake-generators`.  `Ninja` is perhaps faster.
 
 ``` shell
-# avoid polluting working tree with build-related files
-mkdir build && cd build
+# generate make files under /build (out-of-source)
+cmake -B build -G "Unix Makefiles"
 
-cmake -G "Unix Makefiles" ..
-
-make
-
-cd ..
+make  # build tool agnostic alternative: cmake --build build
 
 ./Proto3D
 ```
 
 # Debug
 
-[Qt Creator][] is an efficient cross-platform C++ IDE with decent debugging capability that works atop the GCC/GDB or Clang/LLDB toolchains.  Qt Creator also has full support for CMake-based projects.  Once installed, do the following
+[Qt Creator][] is an efficient cross-platform C++ IDE with decent debugging capability that works atop the GCC/GDB or Clang/LLDB toolchains.  Qt Creator also has full support for CMake-based projects.  On macOS getting it to work wasn’t straight forward; here’s the precise recipe:
 
 1. Setup 32-bit Desktop kit
     1. Open _Qt Creator -> Preferences -> Kits_
@@ -78,6 +77,7 @@ Thanks to _Joey De Vries_ for his excellent [LearnOpenGL.com][]; files under `cm
 [GLM]: https://github.com/g-truc/glm
 [CMake]: https://cmake.org/
 [GLAD]: https://github.com/Dav1dde/glad
+[stb]: https://github.com/nothings/stb
 [LearnOpenGL.com]: https://learnopengl.com/
 [learn-opengl-repo]: https://github.com/JoeyDeVries/LearnOpenGL
 [Qt Creator]: https://www.qt.io/offline-installers

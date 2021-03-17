@@ -1,4 +1,6 @@
-# refer https://github.com/ttroy50/cmake-examples/tree/master/02-sub-projects
+# Refer
+# https://github.com/ttroy50/cmake-examples/tree/master/02-sub-projects
+# https://cliutils.gitlab.io/modern-cmake/chapters/intro/dodonot.html
 
 cmake_minimum_required(VERSION 3.8)
 project(Proto3D VERSION 1.0
@@ -15,4 +17,5 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 add_subdirectory(third_party/GLAD)
+add_subdirectory(third_party/stb)
 add_subdirectory(src)
