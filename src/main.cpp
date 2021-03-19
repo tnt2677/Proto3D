@@ -272,10 +272,26 @@ int main() {
 
     // Camera movement : take opposite steps : want to move forward (into the
     // screen) - move towards the (-z : RHS)
-    glm::mat4 view = glm::mat4(1.0f);
     // note that we're translating the scene in the reverse direction of where
     // we want to move
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 view;
+    /* view = glm::lookAt(
+      glm::vec3(0.0f, 0.0f, 3.0f), // 1. Camera position wrt world's origin
+      glm::vec3(0.0f, 0.0f, 0.0f), // 2. Where the camera's looking at
+                                        (camera's z axis)
+      glm::vec3(0.0f, 1.0f, 0.0f));// 3. Up direction which is used to
+                                        calculate camera's coordinate space.
+                                        This is Y axis in camera's world.
+                                        2 & 3 are used to define camera's Y
+                                        axis as a cross product (RHS for
+                                        openGL).
+    */
+
+    const double radius = 10.0f;
+    double camX = sin(glfwGetTime()) * radius;
+    double camZ = cos(glfwGetTime()) * radius;
+    view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0),
+                       glm::vec3(0.0, 1.0, 0.0));
 
     // Perspective division : to create actual depth.
     glm::mat4 projection;
